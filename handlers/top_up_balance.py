@@ -1,3 +1,4 @@
+from helpers.messages import safe_query_answer
 from . import *
 from helpers import api
 
@@ -14,7 +15,7 @@ async def top_up_balance(
 
     await delete_msg_to_delete(user.id)
     await add_msg_to_delete(user.id, [msg.message_id])
-    await query.answer("")
+    await safe_query_answer(query)
 
 
 async def top_up_balance_bank_card(
@@ -32,7 +33,7 @@ async def top_up_balance_bank_card(
 
     await delete_msg_to_delete(user.id)
     await add_msg_to_delete(user.id, [msg.message_id])
-    await query.answer("")
+    await safe_query_answer(query)
 
 
 async def top_up_balance_crypto_token(
@@ -49,7 +50,7 @@ async def top_up_balance_crypto_token(
 
     await delete_msg_to_delete(user.id)
     await add_msg_to_delete(user.id, [msg.message_id])
-    await query.answer("")
+    await safe_query_answer(query)
 
 
 async def top_up_balance_crypto_network(
@@ -64,7 +65,7 @@ async def top_up_balance_crypto_network(
 
     await state.update_data({"token": data})
     await state.set_state(states.TopUpBalance.network)
-    await query.answer("")
+    await safe_query_answer(query)
 
 
 async def top_up_balance_crypto_amount(
@@ -80,7 +81,7 @@ async def top_up_balance_crypto_amount(
     )
     await state.update_data({"network": network})
     await state.set_state(states.TopUpBalance.amount)
-    await query.answer("")
+    await safe_query_answer(query)
 
 
 async def top_up_balance_url(

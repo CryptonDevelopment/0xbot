@@ -119,8 +119,8 @@ async def choose_sub_type_keyboard(duration: int, start_id: int, pro_id: int, pr
             ],
             [
                 InlineKeyboardButton(
-                    text="Указать промокод",
-                    callback_data="enter_promo"
+                    text="Нужна помощь с выбором",
+                    callback_data="need_help_btn"
                 )
             ]
         ]

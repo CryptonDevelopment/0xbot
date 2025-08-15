@@ -1,3 +1,4 @@
+from helpers.messages import safe_query_answer
 from . import *
 from helpers import api
 
@@ -14,6 +15,7 @@ async def about_prime1(query: CallbackQuery, state: FSMContext, bot: Bot, user: 
     await create_timer_message(user, DELAY_MINUTES_5, "about_prime2")
     await delete_msg_to_delete(user.id)
     await add_msg_to_delete(user.id, [msg.message_id])
+    await safe_query_answer(query)
 
 
 async def about_prime2(query: CallbackQuery, state: FSMContext, bot: Bot, user: User) -> None:
@@ -34,6 +36,7 @@ async def about_prime2(query: CallbackQuery, state: FSMContext, bot: Bot, user: 
     await create_timer_message(user, DELAY_MINUTES_15, "about_prime3")
     await delete_msg_to_delete(user.id)
     await add_msg_to_delete(user.id, [msg1.message_id, msg2.message_id])
+    await safe_query_answer(query)
 
 
 async def about_prime3(query: CallbackQuery, state: FSMContext, bot: Bot, user: User) -> None:
@@ -46,9 +49,10 @@ async def about_prime3(query: CallbackQuery, state: FSMContext, bot: Bot, user: 
         link_preview_options=LinkPreviewOptions(is_disabled=True)
     )
 
-    await create_timer_message(user, DELAY_DAYS_1, "prime_reminder1")
+    await create_timer_message(user, DELAY_DAYS_1*100, "prime_reminder1")
     await delete_msg_to_delete(user.id)
     await add_msg_to_delete(user.id, [msg.message_id])
+    await safe_query_answer(query)
 
 
 async def enter_prime(query: CallbackQuery, state: FSMContext, bot: Bot, user: User) -> None:
@@ -64,6 +68,7 @@ async def enter_prime(query: CallbackQuery, state: FSMContext, bot: Bot, user: U
 
     await delete_msg_to_delete(user.id)
     await add_msg_to_delete(user.id, [msg.message_id])
+    await safe_query_answer(query)
 
 
 async def enter_prime_choiсe_duration(query: CallbackQuery, state: FSMContext, bot: Bot, user: User, duration: int = None) -> None:
@@ -74,12 +79,19 @@ async def enter_prime_choiсe_duration(query: CallbackQuery, state: FSMContext, 
     backend_user = await user_helpers.check_user(query)  
     subs = await api.get_subs(backend_user["id"])
 
-    discount = (await state.get_data()).get("discount")
+    discount = await api.post_request(f"/api/v1/promo-codes/validate/?user_id={backend_user['id']}",data = {"promocode": f"CONNECT"})
+    add_message = "\nСтоимость указана с учётом промокода *CONNECT* со скидкой -20%. Срок действия промо до 1 сентября\n"
+    if not discount.get("discountAmount"):
+        discount = {}
+        add_message = ""
+
+    await state.update_data(discount = discount)
 
     start_price, start_id = await api.calculate_final_price(subs.get("Start")[duration], discount)
     pro_price, pro_id = await api.calculate_final_price(subs.get("Pro")[duration], discount)
     prime_price, prime_id = await api.calculate_final_price(subs.get("Prime")[duration], discount)
     text = about_prime_msgs.enter_prime_texts[duration].format(
+        add_message,
         start_price,
         pro_price,
         prime_price
@@ -93,6 +105,7 @@ async def enter_prime_choiсe_duration(query: CallbackQuery, state: FSMContext, 
 
     await delete_msg_to_delete(user.id)
     await add_msg_to_delete(user.id, [msg.message_id])
+    await safe_query_answer(query)
 
 
 async def enter_prime_promo(query: CallbackQuery, state: FSMContext, bot: Bot, user: User) -> None:
@@ -103,6 +116,7 @@ async def enter_prime_promo(query: CallbackQuery, state: FSMContext, bot: Bot, u
     )
     await delete_msg_to_delete(user.id)
     await add_msg_to_delete(user.id, [msg.message_id])
+    await safe_query_answer(query)
 
 
 async def enter_prime_promo_validate(message: Message, state: FSMContext, bot: Bot, user: User) -> None:
@@ -155,6 +169,8 @@ async def enter_prime_confirm(query: CallbackQuery, state: FSMContext, bot: Bot,
 
         await delete_msg_to_delete(user.id)
 
+    await safe_query_answer(query)
+
 
 async def prime_notif(query: CallbackQuery, state: FSMContext, bot: Bot, user: User) -> None:
     await delete_timer_message(user, "prime_notif")
@@ -162,6 +178,7 @@ async def prime_notif(query: CallbackQuery, state: FSMContext, bot: Bot, user: U
         chat_id = user.id,
         text = await safe_for_markdown(about_prime_msgs.prime_hello_notif)
     )
+    await safe_query_answer(query)
 
 
 async def need_help(query: CallbackQuery, state: FSMContext, bot: Bot, user: User) -> None:
@@ -174,6 +191,7 @@ async def need_help(query: CallbackQuery, state: FSMContext, bot: Bot, user: Use
 
     await delete_msg_to_delete(user.id)
     await add_msg_to_delete(user.id, [msg.message_id])
+    await safe_query_answer(query)
 
 
 async def need_gift(query: CallbackQuery, state: FSMContext, bot: Bot, user: User) -> None:
@@ -187,6 +205,7 @@ async def need_gift(query: CallbackQuery, state: FSMContext, bot: Bot, user: Use
     await create_timer_message(user, DELAY_DAYS_1, "need_gift2")
     await delete_msg_to_delete(user.id)
     await add_msg_to_delete(user.id, [msg.message_id])
+    await safe_query_answer(query)
 
 
 async def download_gift(query: CallbackQuery, state: FSMContext, bot: Bot, user: User) -> None:
@@ -194,7 +213,7 @@ async def download_gift(query: CallbackQuery, state: FSMContext, bot: Bot, user:
         chat_id=user.id,
         document=FSInputFile("gift/gift.pdf")
     )
-    await query.answer("")
+    await safe_query_answer(query)
 
 
 async def need_gift2(query: CallbackQuery, state: FSMContext, bot: Bot, user: User) -> None:
@@ -209,6 +228,7 @@ async def need_gift2(query: CallbackQuery, state: FSMContext, bot: Bot, user: Us
 
     await delete_msg_to_delete(user.id)
     await add_msg_to_delete(user.id, [msg.message_id])
+    await safe_query_answer(query)
 
 
 async def prime_reminder1(query: CallbackQuery, state: FSMContext, bot: Bot, user: User) -> None:
@@ -221,9 +241,10 @@ async def prime_reminder1(query: CallbackQuery, state: FSMContext, bot: Bot, use
         link_preview_options=LinkPreviewOptions(is_disabled=True)
     )
 
-    await create_timer_message(user, DELAY_DAYS_1, "prime_reminder2")
+    await create_timer_message(user, DELAY_DAYS_1*100, "prime_reminder2")
     await delete_msg_to_delete(user.id)
     await add_msg_to_delete(user.id, [msg.message_id])
+    await safe_query_answer(query)
 
 
 async def prime_reminder2(query: CallbackQuery, state: FSMContext, bot: Bot, user: User) -> None:
@@ -236,9 +257,10 @@ async def prime_reminder2(query: CallbackQuery, state: FSMContext, bot: Bot, use
         link_preview_options=LinkPreviewOptions(is_disabled=True)
     )
 
-    await create_timer_message(user, DELAY_DAYS_1, "prime_reminder3")
+    await create_timer_message(user, DELAY_DAYS_1*100, "prime_reminder3")
     await delete_msg_to_delete(user.id)
     await add_msg_to_delete(user.id, [msg.message_id])
+    await safe_query_answer(query)
 
 
 async def prime_reminder3(query: CallbackQuery, state: FSMContext, bot: Bot, user: User) -> None:
@@ -253,3 +275,4 @@ async def prime_reminder3(query: CallbackQuery, state: FSMContext, bot: Bot, use
 
     await delete_msg_to_delete(user.id)
     await add_msg_to_delete(user.id, [msg.message_id])
+    await safe_query_answer(query)

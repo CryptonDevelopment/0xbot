@@ -1,9 +1,9 @@
+from helpers.messages import safe_query_answer
 from . import *
 
 
 async def start_1(message: Message, state: FSMContext, bot: Bot, user: User) -> None:
     await user_helpers.check_user(message)
-    #await TimerMessage.filter(user = user).delete()
     msg1 = await message.answer_video_note(
         video_note=FSInputFile(path="videos/1.mp4")
     )
@@ -33,6 +33,7 @@ async def start_2(query: CallbackQuery, state: FSMContext, bot: Bot, user: User)
     await create_timer_message(user, DELAY_MINUTES_5, "start_3")
     await delete_msg_to_delete(user.id)
     await add_msg_to_delete(user.id, [msg1.message_id, msg2.message_id])
+    await safe_query_answer(query)
 
 
 async def start_3(query: CallbackQuery, state: FSMContext, bot: Bot, user: User) -> None:
@@ -50,3 +51,4 @@ async def start_3(query: CallbackQuery, state: FSMContext, bot: Bot, user: User)
     await create_timer_message(user, DELAY_MINUTES_5, "select_type")
     await delete_msg_to_delete(user.id)
     await add_msg_to_delete(user.id, [msg1.message_id, msg2.message_id])
+    await safe_query_answer(query)

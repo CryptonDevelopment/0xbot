@@ -1,3 +1,4 @@
+from helpers.messages import safe_query_answer
 from . import *
 
 
@@ -13,6 +14,7 @@ async def select_type(query: CallbackQuery, state: FSMContext, bot: Bot, user: U
     await create_timer_message(user, DELAY_HOUR_1, "selected_type_info")
     await delete_msg_to_delete(user.id)
     await add_msg_to_delete(user.id, [msg.message_id])
+    await safe_query_answer(query)
 
 
 async def selected_type_info(query: CallbackQuery, state: FSMContext, bot: Bot, user: User) -> None:
@@ -40,3 +42,4 @@ async def selected_type_info(query: CallbackQuery, state: FSMContext, bot: Bot, 
     await create_timer_message(user, DELAY_HOUR_1, "about_prime1")
     await delete_msg_to_delete(user.id)
     await add_msg_to_delete(user.id, [msg.message_id])
+    await safe_query_answer(query)

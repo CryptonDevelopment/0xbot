@@ -60,9 +60,8 @@ async def get_subs(user_id: int) -> dict[str, list[dict[str, Any]]]:
 
 
 async def calculate_final_price(subscription: dict[str, Any], discount: dict[str, Any] = None) -> Tuple[int, int]:
-    base_price = subscription.get("individualPrice") or (
-        subscription.get("price", 0) - (subscription.get("baseDiscountAmount", 0) or 0)
-    )
+    base_price = subscription.get("individualPrice") or (subscription.get("price"))
+    base_price -= (subscription.get("baseDiscountAmount", 0) or 0)
     
     subscription_id = subscription.get("id")
     
