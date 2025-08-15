@@ -40,6 +40,6 @@ async def init():
     try:
         await Tortoise.init(config.TORTOISE_ORM)
         await Tortoise.generate_schemas()
-        await TimerMessage.all().delete() # TODO DELETE
+        #await TimerMessage.all().delete() # TODO DELETE
     except Exception as e:
         print(e)
